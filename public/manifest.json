@@ -1,16 +1,21 @@
 {
-  "name": "R_hmt Music ofc",
-  "short_name": "RHmt Music",
-  "description": "Premium Music Experience by R_hmt",
+  "name": "Soundify Music",
+  "short_name": "Soundify",
+  "description": "Aplikasi Web Music Moderen by R_hmt ofc.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#00d2ff",
+  "background_color": "#050816",
+  "theme_color": "#1db954",
   "icons": [
     {
-      "src": "https://res.cloudinary.com/dwiozm4vz/image/upload/v1772959730/ootglrvfmykn6xsto7rq.png",
+      "src": "/Gambar4.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/Gambar4.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
-} 
+}
