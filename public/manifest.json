@@ -1,0 +1,16 @@
+{
+  "name": "R_hmt Music ofc",
+  "short_name": "RHmt Music",
+  "description": "Premium Music Experience by R_hmt",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#00d2ff",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dwiozm4vz/image/upload/v1772959730/ootglrvfmykn6xsto7rq.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 
