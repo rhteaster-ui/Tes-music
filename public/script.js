@@ -1,12 +1,11 @@
-// --- 0. SPLASH SCREEN & PWA (DIPISAHKAN DARI WINDOW.ONLOAD) ---
-// Jalankan timer splash screen segera saat skrip dieksekusi agar tidak macet
+// --- 0. SPLASH SCREEN & PWA ---
 setTimeout(() => {
     const splash = document.getElementById('splash-screen');
     if(splash) {
         splash.style.opacity = '0';
         setTimeout(() => { 
             splash.style.display = 'none'; 
-            splash.remove(); // Hapus bersih dari web
+            splash.remove(); 
         }, 500);
     }
 }, 7500);
@@ -614,6 +613,11 @@ function renderLibraryUI() {
 
 let currentPlaylistTracks = [];
 
+// Data URI khusus biar gambar dalem playlist sama persis kaya icon di luar
+const svgLiked = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23450af5;stop-opacity:1" /><stop offset="100%" style="stop-color:%23c4efd9;stop-opacity:1" /></linearGradient></defs><rect width="240" height="240" fill="url(%23grad1)" /><path d="M120 173.5l-21.75-19.8C62.4 121.9 45 106.5 45 87.5 45 72.1 57.1 60 72.5 60c8.7 0 17.05 4.05 22.5 10.45C100.45 64.05 108.8 60 117.5 60 132.9 60 145 72.1 145 87.5c0 19-17.4 34.4-53.25 66.2L120 173.5z" fill="white" transform="scale(1.5) translate(-40, -30)"/></svg>`;
+const svgFav = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><defs><linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23e1118c;stop-opacity:1" /><stop offset="100%" style="stop-color:%23f5a623;stop-opacity:1" /></linearGradient></defs><rect width="240" height="240" fill="url(%23grad2)" /><path d="M120 186.35l-46.35 28.1 12.3-52.75L45.9 122.6l53.9-4.55L120 69l20.2 49.05 53.9 4.55-40.05 39.1 12.3 52.75L120 186.35z" fill="white" transform="scale(1.3) translate(-25, -30)"/></svg>`;
+const svgHist = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><defs><linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%231e3264;stop-opacity:1" /><stop offset="100%" style="stop-color:%23477d95;stop-opacity:1" /></linearGradient></defs><rect width="240" height="240" fill="url(%23grad3)" /><path d="M119.5 45a67.5 67.5 0 0 0-67.5 67.5H37l29.17 29.17.53 1.05 34.3-30.22H79c0-29.02 23.48-52.5 52.5-52.5s52.5 23.48 52.5 52.5-23.48 52.5-52.5 52.5c-14.47 0-27.6-5.92-37.05-15.45l-10.65 10.65C96.02 174.92 112.57 182.5 131.5 182.5c37.27 0 67.5-30.23 67.5-67.5S156.77 45 119.5 45zm-7.5 37.5v37.5l32.1 19.05 5.4-9.07-26.25-15.6V82.5H112z" fill="white" transform="scale(1.3) translate(-25, -25)"/></svg>`;
+
 function openPlaylistView(id) {
     switchView('playlist');
     const container = document.getElementById('playlistTracksContainer');
@@ -621,21 +625,21 @@ function openPlaylistView(id) {
 
     if (id === 'liked') {
         document.getElementById('playlistNameDisplay').innerText = "Suka";
-        document.getElementById('playlistImageDisplay').style.background = 'linear-gradient(135deg, #450af5, #c4efd9)';
+        document.getElementById('playlistImageDisplay').src = svgLiked;
         const tx = db.transaction("liked_songs", "readonly");
         const req = tx.objectStore("liked_songs").getAll();
         req.onsuccess = () => { processPlaylistData(req.result, 'liked'); };
     } 
     else if (id === 'favorite') {
         document.getElementById('playlistNameDisplay').innerText = "Favorit";
-        document.getElementById('playlistImageDisplay').style.background = 'linear-gradient(135deg, #e1118c, #f5a623)';
+        document.getElementById('playlistImageDisplay').src = svgFav;
         const tx = db.transaction("favorite_songs", "readonly");
         const req = tx.objectStore("favorite_songs").getAll();
         req.onsuccess = () => { processPlaylistData(req.result, 'favorite'); };
     }
     else if (id === 'history') {
         document.getElementById('playlistNameDisplay').innerText = "Histori Putar";
-        document.getElementById('playlistImageDisplay').style.background = 'linear-gradient(135deg, #1e3264, #477d95)';
+        document.getElementById('playlistImageDisplay').src = svgHist;
         const tx = db.transaction("history_songs", "readonly");
         const req = tx.objectStore("history_songs").getAll();
         req.onsuccess = () => { 

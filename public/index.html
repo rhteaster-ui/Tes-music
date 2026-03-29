@@ -7,7 +7,6 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#121212">
     
-    <!-- FIX ICON WEB BROWSER & PWA -->
     <link rel="icon" type="image/png" href="/Gambar4.png">
     <link rel="shortcut icon" href="/Gambar4.png">
     <link rel="apple-touch-icon" href="/Gambar4.png">
@@ -42,7 +41,7 @@
 
     <div id="view-home" class="view-section active">
         <div class="home-header">
-            <img src="/Gambar4.png" class="profile-icon" alt="Logo Web" style="border-radius: 8px;">
+            <img src="/Gambar4.png" class="profile-icon" alt="Logo Web">
             <h2 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">Soundify</h2>
         </div>
         
@@ -58,7 +57,7 @@
 
     <div id="view-search" class="view-section">
         <div class="search-header-container">
-            <img src="/Gambar4.png" class="profile-icon" alt="Logo" style="border-radius: 8px;">
+            <img src="/Gambar4.png" class="profile-icon-search" alt="Logo">
             <h1>Cari</h1>
         </div>
         <div class="search-box-wrapper">
@@ -75,7 +74,7 @@
     <div id="view-library" class="view-section">
         <div class="lib-header">
             <div class="lib-header-left">
-                <img src="/Gambar4.png" class="profile-icon" alt="Logo" style="border-radius: 8px;">
+                <img src="/Gambar4.png" class="profile-icon-search" alt="Logo">
                 <h1 class="lib-title">Koleksi Kamu</h1>
             </div>
             <div class="lib-actions">
@@ -136,13 +135,18 @@
             <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 20px;">Sistem Informasi & Pengembangan</p>
         </div>
 
-        <div class="section-container" style="padding: 0 16px;">
-            <button id="installAppBtn" class="dev-cta-btn install-pwa-btn">
+        <div class="section-container" style="padding: 0 16px; display: flex; flex-direction: column; align-items: center; margin-top: -30px;">
+            
+            <!-- Logo Sebelum Install -->
+            <img src="/Gambar4.png" alt="Logo Web" style="width: 100px; height: 100px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); position: relative; z-index: 2; margin-bottom: 20px; background: #121212; object-fit: cover;">
+            
+            <button id="installAppBtn" class="dev-cta-btn install-pwa-btn" style="width: 100%;">
                 <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:black;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>
                 Install Aplikasi
             </button>
 
-            <div class="dev-card">
+            <!-- INFORMASI PROJECT LENGKAP -->
+            <div class="dev-card" style="width: 100%;">
                 <div class="dev-card-title">
                     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path></svg>
                     Informasi Project
@@ -152,32 +156,54 @@
                 </p>
             </div>
 
-            <!-- Area Profil Dev di Bawah -->
-            <div style="text-align: center; margin-top: 50px; padding-bottom: 40px;">
-                <img src="/Gambar 3.jpg" alt="Dev Profile" style="width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--spotify-green); object-fit: cover; margin-bottom: 12px; background: #282828;">
-                <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 4px;">R_hmt ofc.</h2>
-                <p style="color: var(--text-sub); font-size: 13px; margin-bottom: 20px;">Lead Developer & UI/UX Designer<br>Soundify App v1.2.0</p>
+            <div class="dev-card" style="width: 100%;">
+                <div class="dev-card-title">
+                    <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"></path></svg>
+                    Spesifikasi Teknis
+                </div>
+                <ul class="dev-list">
+                    <li><span class="label">Frontend Core</span> <span class="value">HTML5 / CSS3 / JS</span></li>
+                    <li><span class="label">Backend API</span> <span class="value">FastAPI Python</span></li>
+                    <li><span class="label">Library Module</span> <span class="value">ytmusicapi</span></li>
+                    <li><span class="label">Local Storage</span> <span class="value">IndexedDB API</span></li>
+                    <li><span class="label">App Type</span> <span class="value">Progressive Web App</span></li>
+                    <li><span class="label">Cloud Server</span> <span class="value">Vercel Serverless</span></li>
+                </ul>
+            </div>
+
+            <!-- Area Profil Dev di Bawah & Sosmed Lengkap -->
+            <div style="text-align: center; margin-top: 40px; width: 100%;">
+                <img src="/Gambar 3.jpg" class="dev-profile-pic" alt="Dev Profile" style="width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--bg-base); box-shadow: 0 8px 24px rgba(0,0,0,0.6); object-fit: cover; margin: 0 auto 16px; display: block; background: #282828;">
+                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">R_hmt ofc.</h2>
+                <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 12px;">Lead Developer & UI/UX Designer</p>
+                <div class="dev-badge">● Sistem Online (v1.2.0)</div>
                 
-                <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 24px;">
-                    <!-- WA -->
-                    <a href="https://whatsapp.com/channel/0029VbBjyjlJ93wa6hwSWa0p" target="_blank" class="social-icon">
-                        <svg viewBox="0 0 24 24" style="fill:white; width:20px; height:20px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.489-1.761-1.663-2.06-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path></svg>
-                    </a>
-                    <!-- IG -->
-                    <a href="https://www.instagram.com/rahmt_nhw?igsh=MWQwcnB3bTA2ZnVidg==" target="_blank" class="social-icon">
-                        <svg viewBox="0 0 24 24" style="fill:white; width:20px; height:20px;"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"></path></svg>
-                    </a>
-                    <!-- TikTok -->
-                    <a href="https://www.tiktok.com/@r_hmtofc?_r=1&_t=ZS-94KRfWQjeUu" target="_blank" class="social-icon">
-                        <svg viewBox="0 0 24 24" style="fill:white; width:20px; height:20px;"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.01.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.78-1.15 5.54-3.33 7.33-2.22 1.83-5.22 2.62-8.05 1.95-2.87-.67-5.3-2.6-6.42-5.32-1.16-2.81-1.01-6.04.56-8.68 1.48-2.48 4.14-4.11 7-4.42 1.05-.11 2.1-.05 3.15-.05v4.02c-1.37.07-2.76.26-3.95 1.02-1.2.77-2.07 2.05-2.31 3.44-.24 1.39.06 2.85.92 3.97.87 1.13 2.33 1.76 3.77 1.8 1.43.04 2.85-.49 3.91-1.43 1.05-.93 1.68-2.32 1.75-3.75.09-3.98.05-7.97.05-11.95-.01-1.59 0-3.18 0-4.77z"></path></svg>
-                    </a>
-                    <!-- Telegram -->
-                    <a href="https://t.me/rAi_engine" target="_blank" class="social-icon">
-                        <svg viewBox="0 0 24 24" style="fill:white; width:20px; height:20px;"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.32.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"></path></svg>
-                    </a>
+                <div class="dev-card" style="width: 100%; margin-top: 10px; padding-bottom: 24px;">
+                    <div class="dev-card-title" style="justify-content: center;">
+                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"></path></svg>
+                        Connect With Me
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: 16px; margin-top: 16px;">
+                        <!-- WA -->
+                        <a href="https://whatsapp.com/channel/0029VbBjyjlJ93wa6hwSWa0p" target="_blank" class="social-icon">
+                            <svg viewBox="0 0 24 24" style="fill:white; width:20px; height:20px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.888-.788-1.489-1.761-1.663-2.06-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path></svg>
+                        </a>
+                        <!-- IG -->
+                        <a href="https://www.instagram.com/rahmt_nhw?igsh=MWQwcnB3bTA2ZnVidg==" target="_blank" class="social-icon">
+                            <svg viewBox="0 0 24 24" style="fill:white; width:20px; height:20px;"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"></path></svg>
+                        </a>
+                        <!-- TikTok -->
+                        <a href="https://www.tiktok.com/@r_hmtofc?_r=1&_t=ZS-94KRfWQjeUu" target="_blank" class="social-icon">
+                            <svg viewBox="0 0 24 24" style="fill:white; width:20px; height:20px;"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.01.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.78-1.15 5.54-3.33 7.33-2.22 1.83-5.22 2.62-8.05 1.95-2.87-.67-5.3-2.6-6.42-5.32-1.16-2.81-1.01-6.04.56-8.68 1.48-2.48 4.14-4.11 7-4.42 1.05-.11 2.1-.05 3.15-.05v4.02c-1.37.07-2.76.26-3.95 1.02-1.2.77-2.07 2.05-2.31 3.44-.24 1.39.06 2.85.92 3.97.87 1.13 2.33 1.76 3.77 1.8 1.43.04 2.85-.49 3.91-1.43 1.05-.93 1.68-2.32 1.75-3.75.09-3.98.05-7.97.05-11.95-.01-1.59 0-3.18 0-4.77z"></path></svg>
+                        </a>
+                        <!-- Telegram -->
+                        <a href="https://t.me/rAi_engine" target="_blank" class="social-icon">
+                            <svg viewBox="0 0 24 24" style="fill:white; width:20px; height:20px;"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.32.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"></path></svg>
+                        </a>
+                    </div>
                 </div>
 
-                <div class="dev-footer-text" style="margin: 0;">
+                <div class="dev-footer-text" style="margin: 0; padding-bottom: 40px;">
                     Hak Cipta © 2026 R_hmt ofc.
                 </div>
             </div>
