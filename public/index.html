@@ -6,6 +6,10 @@
     <title>Soundify - R_hmt ofc.</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#121212">
+    
+    <!-- FIX ICON WEB BROWSER & PWA -->
+    <link rel="icon" type="image/png" href="/Gambar4.png">
+    <link rel="shortcut icon" href="/Gambar4.png">
     <link rel="apple-touch-icon" href="/Gambar4.png">
     
     <link rel="stylesheet" href="/style.css">
@@ -13,7 +17,7 @@
 </head>
 <body>
 
-    <!-- SPLASH SCREEN DIINTEGRASIKAN -->
+    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="flash"></div>
         <div class="container-splash">
@@ -262,12 +266,11 @@
                 <svg id="btnRepeat" onclick="toggleRepeat()" viewBox="0 0 24 24" style="fill:var(--text-sub); width:24px; height:24px; cursor:pointer;"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"></path></svg>
                 <div id="repeatBadge" style="display:none; position:absolute; right: 20px; bottom: 65px; font-size:10px; background:var(--spotify-green); color:black; padding:2px 4px; border-radius:4px; font-weight:bold;">1x</div>
             </div>
-            <!-- Bottom padding spasi -->
             <div style="height: 20px;"></div>
         </div>
     </div>
 
-    <!-- MODAL TITIK TIGA (MENU PLAYER) -->
+    <!-- MODAL TITIK TIGA -->
     <div id="playerMenuModal" class="modal-overlay" style="display:none; justify-content:flex-end; background: rgba(0,0,0,0.8); z-index: 2500;">
         <div style="background: #282828; width: 100%; border-radius: 20px 20px 0 0; padding: 24px; display: flex; flex-direction: column;">
             <div style="display: flex; gap: 16px; align-items: center; border-bottom: 1px solid #3e3e3e; padding-bottom: 16px; margin-bottom: 16px;">

@@ -7,7 +7,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    event.respondWith(fetch(event.request).catch(() => {
-        return new Response('Aplikasi offline, harap periksa koneksi internet Anda.');
-    }));
+    event.respondWith(
+        fetch(event.request).catch(() => {
+            return new Response('Aplikasi offline, harap periksa koneksi internet Anda.', {
+                headers: { 'Content-Type': 'text/plain' }
+            });
+        })
+    );
 });

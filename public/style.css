@@ -11,10 +11,10 @@
 
 body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hidden; padding-bottom: 140px; }
 
-/* --- SPLASH SCREEN STYLES --- */
-#splash-screen { position: fixed; inset: 0; background: radial-gradient(circle at center, #081b4a, #050816); z-index: 9999; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: system-ui, sans-serif; transition: opacity 0.5s ease; }
+/* --- FIX SPLASH SCREEN --- */
+#splash-screen { position: fixed; inset: 0; background: radial-gradient(circle at center, #081b4a, #050816); z-index: 99999; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: system-ui, sans-serif; transition: opacity 0.5s ease; }
 .flash { position: absolute; inset: 0; background: white; opacity: 0; animation: flashIn .3s ease; pointer-events: none; }
-.container-splash { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; animation: fadeOutSplash 1s ease 6.5s forwards; }
+.container-splash { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100vw; height: 100dvh; position: relative; animation: fadeOutSplash 1s ease 6.5s forwards; }
 .logo-area { position: relative; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; }
 .tech { position: absolute; width: 320px; height: 320px; border-radius: 50%; border: 1px dashed rgba(29,185,84,0.2); animation: rotateTech 12s linear infinite; }
 .tech::before, .tech::after { content: ""; position: absolute; inset: -20px; border-radius: 50%; border: 1px solid rgba(29,92,255,0.15); animation: rotateTechReverse 18s linear infinite; }
@@ -28,7 +28,9 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 .soundi { color: var(--spotify-green); text-shadow: 0 0 6px rgba(29,185,84,0.35); }
 .fy { color: #ffffff; }
 #splash-screen p { margin: 0; font-size: 14px; color: rgba(255,255,255,0.7); opacity: 0; animation: fadeUpSplash .8s ease 1.8s forwards; }
-.footer-splash { position: absolute; bottom: 30px; font-size: 11px; color: rgba(255,255,255,0.5); text-align: center; line-height: 1.4; opacity: 0; animation: fadeUpSplash .8s ease 2.4s forwards; }
+/* Mencegah Teks Menabrak */
+.footer-splash { position: absolute; bottom: 30px; left: 0; right: 0; margin: auto; font-size: 11px; color: rgba(255,255,255,0.5); text-align: center; line-height: 1.4; opacity: 0; animation: fadeUpSplash .8s ease 2.4s forwards; }
+
 @keyframes flashIn { 0% { opacity: .6; } 100% { opacity: 0; } }
 @keyframes zoomInSplash { 0% { transform: scale(0.1); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes logoPopSplash { 0% { opacity: 0; transform: scale(0.5); } 60% { transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
@@ -38,7 +40,6 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 @keyframes rotateTech { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes rotateTechReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 @keyframes fadeOutSplash { to { opacity: 0; transform: scale(1.05); } }
-/* --- END SPLASH SCREEN --- */
 
 .view-section { display: none; animation: fadeIn 0.2s ease; }
 .view-section.active { display: block; }
