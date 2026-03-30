@@ -1,20 +1,36 @@
-// --- 0. SPLASH SCREEN & PWA ---
-setTimeout(() => {
-    const splash = document.getElementById('splash-screen');
-    if(splash) {
-        splash.style.opacity = '0';
-        setTimeout(() => { 
-            splash.style.display = 'none'; 
-            splash.remove(); 
-        }, 500);
-    }
-}, 7500);
+// --- 0. NAVIGASI BACK, SPLASH SCREEN & PWA ---
+window.addEventListener('load', () => {
+    // Navigasi Back History API Default State
+    history.replaceState({ view: 'home' }, '', '#home');
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
+    // Splash Screen Cuma 1 Kali
+    if (!sessionStorage.getItem('splashShown')) {
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => { 
+                    splash.style.display = 'none'; 
+                    splash.remove(); 
+                }, 500);
+            }
+        }, 7500);
+        sessionStorage.setItem('splashShown', 'true');
+    } else {
+        const splash = document.getElementById('splash-screen');
+        if(splash) {
+            splash.style.display = 'none';
+            splash.remove();
+        }
+    }
+
+    if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('PWA error:', err));
-    });
-}
+    }
+    
+    loadHomeData();
+    renderSearchCategories();
+});
 
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -29,6 +45,15 @@ window.addEventListener('beforeinstallprompt', (e) => {
             if(outcome === 'accepted') installBtn.style.display = 'none'; 
             deferredPrompt = null;
         });
+    }
+});
+
+// History Back System
+window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.view) {
+        switchView(e.state.view, false);
+    } else {
+        switchView('home', false);
     }
 });
 
@@ -57,7 +82,6 @@ let currentRepeatCount = 0;
 let currentPlayContext = null; 
 let sleepTimerTimeout = null;
 
-// Fitur Edit (Hapus Banyak)
 let isEditMode = false;
 let selectedTracksForDelete = new Set();
 
@@ -114,9 +138,7 @@ function handleTrackEnded() {
     playNextTrack(false);
 }
 
-// LOGIC NEXT LAGU SESUAI DAFTAR / PLAYLIST
 function playNextTrack(isManualClick = true) {
-    // Kalau dipencet manual, lompati ulangi (repeat 1x)
     if(isManualClick) currentRepeatCount = 0;
 
     if (currentPlayContext && currentPlayContext.data && currentPlayContext.data.length > 0) {
@@ -178,7 +200,6 @@ function addToHistory(track) {
 }
 
 function playMusic(videoId, encodedTrackData, contextData = null) {
-    // Kalau yang di klik beda dari yang disetel sebelumnya, reset timer ulangi
     if(currentTrack && currentTrack.videoId !== videoId) currentRepeatCount = 0;
     
     currentTrack = JSON.parse(decodeURIComponent(encodedTrackData));
@@ -202,6 +223,7 @@ function playMusic(videoId, encodedTrackData, contextData = null) {
     if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(videoId);
     
     document.getElementById('progressBar').value = 0;
+    document.getElementById('miniProgressBar').style.width = '0%';
     document.getElementById('currentTime').innerText = "0:00";
     document.getElementById('totalTime').innerText = "0:00";
 }
@@ -229,9 +251,15 @@ function startProgressBar() {
             const duration = ytPlayer.getDuration();
             if (duration > 0) {
                 const percent = (current / duration) * 100;
+                
+                // Update Main Player
                 const progressBar = document.getElementById('progressBar');
                 progressBar.value = percent;
                 progressBar.style.background = `linear-gradient(to right, white ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
+                
+                // Update Mini Player Bar
+                document.getElementById('miniProgressBar').style.width = `${percent}%`;
+
                 document.getElementById('currentTime').innerText = formatTime(current);
                 document.getElementById('totalTime').innerText = formatTime(duration);
             }
@@ -248,6 +276,7 @@ function seekTo(value) {
         ytPlayer.seekTo(seekTime, true);
         const percent = value;
         document.getElementById('progressBar').style.background = `linear-gradient(to right, white ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
+        document.getElementById('miniProgressBar').style.width = `${percent}%`;
     }
 }
 
@@ -411,7 +440,8 @@ function updateMediaSession() {
     }
 }
 
-function switchView(viewName) {
+// Switch View dengan PUSH STATE (Biar tombol back berfungsi)
+function switchView(viewName, pushState = true) {
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
     document.getElementById('view-' + viewName).classList.add('active');
     
@@ -423,6 +453,10 @@ function switchView(viewName) {
     else if (viewName === 'developer') navItems[3].classList.add('active'); 
     
     window.scrollTo(0,0);
+
+    if (pushState) {
+        history.pushState({ view: viewName }, '', `#${viewName}`);
+    }
 }
 
 const dotsSvg = '<svg class="dots-icon" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path></svg>';
@@ -440,7 +474,6 @@ function createListHTML(track, context = null) {
     const trackData = encodeURIComponent(JSON.stringify({videoId: track.videoId, title: track.title, artist: artist, img: img}));
     const ctxString = context ? encodeURIComponent(JSON.stringify(context)) : 'null';
     
-    // Fitur Checkbox untuk Hapus Banyak
     return `
         <div class="v-item" id="item-${track.videoId}">
             <input type="checkbox" class="v-checkbox" onchange="handleCheckDelete('${track.videoId}', this.checked)">
@@ -473,7 +506,7 @@ function createCardHTML(track, isArtist = false) {
     `;
 }
 
-// --- DATA FETCHING ---
+// --- DATA FETCHING DENGAN PENANGANAN OFFLINE ---
 let homeDisplayedVideoIds = new Set();
 async function fetchAndRender(query, containerId, formatType, isArtist = false, isHome = false) {
     try {
@@ -492,7 +525,9 @@ async function fetchAndRender(query, containerId, formatType, isArtist = false, 
             tracks.forEach(t => html += formatType === 'list' ? createListHTML(t) : createCardHTML(t, isArtist));
             document.getElementById(containerId).innerHTML = html;
         }
-    } catch (error) {}
+    } catch (error) {
+        document.getElementById(containerId).innerHTML = '<div style="color:var(--text-sub); font-size: 13px;">Sedang Offline (Koneksi Terputus)</div>';
+    }
 }
 
 function loadHomeData() {
@@ -541,7 +576,9 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
                 result.data.forEach(t => html += createListHTML(t));
                 document.getElementById('searchResults').innerHTML = html;
             }
-        } catch (error) {}
+        } catch (error) {
+            document.getElementById('searchResults').innerHTML = '<div style="color:var(--text-sub); text-align:center;">Anda Sedang Offline</div>';
+        }
     }, 800);
 });
 
@@ -667,7 +704,6 @@ function renderLibraryUI() {
 let currentPlaylistTracks = [];
 let activePlaylistId = null;
 
-// Mengatur Cover SVG Presisi Tengah (Bukan Data URI)
 const pathHeart = "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
 const pathStar = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z";
 const pathClock = "M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z";
@@ -811,7 +847,6 @@ function deleteSelectedTracks() {
         const store = tx.objectStore(storeName);
         selectedTracksForDelete.forEach(id => {
             if(activePlaylistId === 'history') {
-                // Di history keyPath nya timestamp, jadi kita loop hapus yg punya videoId sama
                 const req = store.openCursor();
                 req.onsuccess = function(e) {
                     const cursor = e.target.result;
@@ -829,7 +864,6 @@ function deleteSelectedTracks() {
             openPlaylistView(activePlaylistId); // Reload
         }
     } else {
-        // Logika hapus dari Playlist buatan sendiri
         const tx = db.transaction("playlists", "readwrite");
         const store = tx.objectStore("playlists");
         const req = store.get(activePlaylistId);
@@ -905,8 +939,3 @@ function addTrackToPlaylist(playlistId) {
         closeAddToPlaylistModal();
     };
 }
-
-window.onload = () => {
-    loadHomeData();
-    renderSearchCategories();
-};

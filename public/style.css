@@ -11,7 +11,6 @@
 
 body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hidden; padding-bottom: 140px; }
 
-/* --- FIX SPLASH SCREEN --- */
 #splash-screen { position: fixed; inset: 0; background: radial-gradient(circle at center, #081b4a, #050816); z-index: 99999; display: flex; justify-content: center; align-items: center; overflow: hidden; font-family: system-ui, sans-serif; transition: opacity 0.5s ease; }
 .flash { position: absolute; inset: 0; background: white; opacity: 0; animation: flashIn .3s ease; pointer-events: none; }
 .container-splash { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100vw; height: 100dvh; position: relative; animation: fadeOutSplash 1s ease 6.5s forwards; }
@@ -44,10 +43,10 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 .view-section.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* LOGO BERANDA DIPERBESAR */
 .home-header { padding: 16px 20px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; background: var(--bg-base); z-index: 50; border-bottom: 1px solid #1a1a1a; }
-.profile-icon { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; cursor: pointer; }
-.profile-icon-search { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; cursor: pointer; }
+/* ICON DIBUAT BULAT 50% */
+.profile-icon { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex-shrink: 0; cursor: pointer; }
+.profile-icon-search { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; cursor: pointer; }
 
 .pill { background-color: #2a2a2a; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; }
 .pill.active { background-color: var(--spotify-green); color: black; }
@@ -69,6 +68,9 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 
 .horizontal-scroll { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 16px; padding: 0 16px; }
 .horizontal-scroll::-webkit-scrollbar { display: none; }
+/* FIX POTONGAN CARD KOSONG */
+.horizontal-scroll::after { content: ''; flex: 0 0 1px; }
+
 .h-card { width: 140px; flex-shrink: 0; scroll-snap-align: start; cursor: pointer; }
 .h-img { width: 140px; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #282828; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
 .h-img.artist-img { border-radius: 50%; }
@@ -105,7 +107,6 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 .lib-item-sub { font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
 .pin-icon { fill: var(--spotify-green); width: 12px; height: 12px; transform: rotate(45deg); }
 
-/* GAMBAR PLAYLIST DINAMIS PRESISI (FLEXBOX) */
 .playlist-cover-box { width: 240px; height: 240px; border-radius: 8px; display: flex; justify-content: center; align-items: center; box-shadow: 0 12px 30px rgba(0,0,0,0.6); overflow: hidden; }
 
 .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.95) 20%, #000); display: flex; justify-content: space-around; padding: 12px 0 15px; z-index: 1000; }
@@ -113,22 +114,25 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 .nav-item.active { color: var(--text-main); }
 .nav-item svg { width: 22px; height: 22px; fill: currentColor; } 
 
-.mini-player { position: fixed; bottom: 70px; left: 8px; right: 8px; background: #282828; border-radius: 6px; padding: 8px; display: flex; align-items: center; gap: 12px; z-index: 900; box-shadow: 0 4px 12px rgba(0,0,0,0.5); cursor: pointer; animation: slideUpMini 0.3s ease; }
+/* MINI PLAYER UPGRADE (FLOATING & PROGRESS BAR) */
+.mini-player { position: fixed; bottom: 65px; left: 8px; right: 8px; background: #282828; border-radius: 8px; display: flex; flex-direction: column; z-index: 900; box-shadow: 0 4px 12px rgba(0,0,0,0.5); cursor: pointer; overflow: hidden; animation: slideUpMini 0.3s ease; }
 @keyframes slideUpMini { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.mini-player-content { padding: 8px 12px; display: flex; align-items: center; gap: 12px; }
 .mini-player img { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; }
 .mini-player-info { flex: 1; overflow: hidden; }
 .mini-player-title { font-size: 13px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
 .mini-player-artist { font-size: 12px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mini-player-controls { display: flex; align-items: center; gap: 16px; padding-right: 8px; }
+.mini-player-controls { display: flex; align-items: center; gap: 16px; }
 .mini-player-controls svg { fill: white; width: 24px; height: 24px; cursor: pointer; }
+.mini-progress-track { width: 100%; height: 2px; background: rgba(255,255,255,0.1); }
+.mini-progress-fill { height: 100%; background: var(--spotify-green); width: 0%; transition: width 0.1s linear; }
+.play-pause-btn-mini { display: flex; align-items: center; justify-content: center; }
 
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000; display: none; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); background-color: #121212; overflow: hidden; }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 #playerBg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; filter: blur(40px) brightness(0.3); background-size: cover; background-position: center; transform: scale(1.2); transition: background 0.5s ease; }
 .player-content-wrapper { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 40px 24px 10px; }
-
-/* FIX UKURAN GAMBAR COVER ALBUM FULL SCREEN MUSIC */
 .player-art-container { padding: 0 24px; display: flex; justify-content: center; align-items: center; flex: 1; margin-bottom: 10px; }
 .player-art-container img { width: 100%; aspect-ratio: 1/1; max-width: 350px; object-fit: cover; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); display: block; }
 
@@ -158,7 +162,6 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: var(--spotify-green); color: #000; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 3000; transition: bottom 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); white-space: nowrap; text-align: center; }
 .toast-notification.show { bottom: 90px; }
 
-/* DEV INFO LENGKAP */
 .dev-hero { background: linear-gradient(180deg, #1e3264 0%, var(--bg-base) 100%); padding: 60px 16px 30px; text-align: center; position: relative; border-bottom: 1px solid #1a1a1a; }
 .dev-card { background: #181818; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); }
 .dev-card-title { font-size: 16px; font-weight: 700; color: white; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
