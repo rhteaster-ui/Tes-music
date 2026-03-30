@@ -41,6 +41,7 @@ request.onupgradeneeded = function(e) {
     if(!db.objectStoreNames.contains('liked_songs')) db.createObjectStore('liked_songs', { keyPath: 'videoId' });
     if(!db.objectStoreNames.contains('favorite_songs')) db.createObjectStore('favorite_songs', { keyPath: 'videoId' });
     if(!db.objectStoreNames.contains('history_songs')) db.createObjectStore('history_songs', { keyPath: 'timestamp' });
+    if(!db.objectStoreNames.contains('offline_songs')) db.createObjectStore('offline_songs', { keyPath: 'videoId' });
 };
 request.onsuccess = function(e) { db = e.target.result; renderLibraryUI(); };
 
@@ -55,6 +56,10 @@ let repeatState = 0;
 let currentRepeatCount = 0;
 let currentPlayContext = null; 
 let sleepTimerTimeout = null;
+
+// Fitur Edit (Hapus Banyak)
+let isEditMode = false;
+let selectedTracksForDelete = new Set();
 
 // --- 3. YOUTUBE PLAYER ---
 function onYouTubeIframeAPIReady() {
@@ -106,7 +111,15 @@ function handleTrackEnded() {
         ytPlayer.seekTo(0); ytPlayer.playVideo(); return;
     }
 
-    if (currentPlayContext && currentPlayContext.data.length > 0) {
+    playNextTrack(false);
+}
+
+// LOGIC NEXT LAGU SESUAI DAFTAR / PLAYLIST
+function playNextTrack(isManualClick = true) {
+    // Kalau dipencet manual, lompati ulangi (repeat 1x)
+    if(isManualClick) currentRepeatCount = 0;
+
+    if (currentPlayContext && currentPlayContext.data && currentPlayContext.data.length > 0) {
         if (isShuffle) {
             const randomTrack = currentPlayContext.data[Math.floor(Math.random() * currentPlayContext.data.length)];
             const trackData = encodeURIComponent(JSON.stringify(randomTrack));
@@ -165,9 +178,11 @@ function addToHistory(track) {
 }
 
 function playMusic(videoId, encodedTrackData, contextData = null) {
+    // Kalau yang di klik beda dari yang disetel sebelumnya, reset timer ulangi
+    if(currentTrack && currentTrack.videoId !== videoId) currentRepeatCount = 0;
+    
     currentTrack = JSON.parse(decodeURIComponent(encodedTrackData));
     currentPlayContext = contextData; 
-    currentRepeatCount = 0; 
     
     addToHistory(currentTrack);
     checkIfLiked(currentTrack.videoId);
@@ -238,14 +253,12 @@ function seekTo(value) {
 
 // --- SHUFFLE & REPEAT ---
 function toggleShuffle() {
-    if (!currentPlayContext) {
-        showToast("Acak hanya aktif di Koleksi/Playlist");
-        return;
-    }
     isShuffle = !isShuffle;
-    const btn = document.getElementById('btnShuffle');
-    if (isShuffle) btn.style.fill = 'var(--spotify-green)';
-    else btn.style.fill = 'var(--text-sub)';
+    const btn1 = document.getElementById('btnShuffle');
+    const btn2 = document.getElementById('btnPlaylistShuffle');
+    const color = isShuffle ? 'var(--spotify-green)' : 'var(--text-sub)';
+    if (btn1) btn1.style.fill = color;
+    if (btn2) btn2.style.fill = color;
     showToast(isShuffle ? "Acak dihidupkan" : "Acak dimatikan");
 }
 
@@ -265,6 +278,25 @@ function toggleRepeat() {
         if (repeatState === 2) { badge.innerText = "3x"; showToast("Ulangi 3 kali"); }
         if (repeatState === 3) { badge.innerText = "∞"; showToast("Ulangi terus"); }
     }
+}
+
+// --- DOWNLOAD OFFLINE LOGIC ---
+function downloadCurrentTrack() {
+    if(!currentTrack) return;
+    showToast("Mengunduh lagu untuk diputar offline...");
+    const tx = db.transaction("offline_songs", "readwrite");
+    tx.objectStore("offline_songs").put(currentTrack);
+    setTimeout(() => { showToast("Selesai! Tersedia di Unduhan"); renderLibraryUI(); }, 2000);
+    closePlayerMenuModal();
+}
+
+function downloadCurrentPlaylist() {
+    if(!currentPlaylistTracks || currentPlaylistTracks.length === 0) return;
+    showToast(`Mengunduh ${currentPlaylistTracks.length} lagu...`);
+    const tx = db.transaction("offline_songs", "readwrite");
+    const store = tx.objectStore("offline_songs");
+    currentPlaylistTracks.forEach(t => store.put(t));
+    setTimeout(() => { showToast("Selesai! Tersedia di Unduhan"); renderLibraryUI(); }, 3000);
 }
 
 // --- MENU TITIK TIGA ---
@@ -317,18 +349,18 @@ function shareLagu() {
     closePlayerMenuModal();
 }
 
-// --- LIKE SYSTEM ---
+// --- LIKE SYSTEM DENGAN SVG MURNI ---
 function checkIfLiked(videoId) {
     const tx = db.transaction("liked_songs", "readonly");
     const request = tx.objectStore("liked_songs").get(videoId);
     request.onsuccess = function() {
-        const btnImg = document.getElementById('btnLikeSongImg');
+        const btnSvg = document.getElementById('btnLikeSong');
         if(request.result) {
-            btnImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%231db954"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
-            btnImg.dataset.liked = "true";
+            btnSvg.style.fill = '#1db954';
+            btnSvg.style.stroke = '#1db954';
         } else {
-            btnImg.src = '/Gambar1.jpg';
-            btnImg.dataset.liked = "false";
+            btnSvg.style.fill = 'transparent';
+            btnSvg.style.stroke = 'white';
         }
     };
 }
@@ -340,16 +372,16 @@ function toggleLike() {
     const getReq = store.get(currentTrack.videoId);
 
     getReq.onsuccess = function() {
-        const btnImg = document.getElementById('btnLikeSongImg');
+        const btnSvg = document.getElementById('btnLikeSong');
         if(getReq.result) {
             store.delete(currentTrack.videoId);
-            btnImg.src = '/Gambar1.jpg';
-            btnImg.dataset.liked = "false";
+            btnSvg.style.fill = 'transparent';
+            btnSvg.style.stroke = 'white';
             showToast("Dihapus dari Suka");
         } else {
             store.put(currentTrack);
-            btnImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%231db954"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
-            btnImg.dataset.liked = "true";
+            btnSvg.style.fill = '#1db954';
+            btnSvg.style.stroke = '#1db954';
             showToast("Ditambahkan ke Suka");
         }
         renderLibraryUI();
@@ -375,7 +407,7 @@ function updateMediaSession() {
         });
         navigator.mediaSession.setActionHandler('play', function() { togglePlay(); });
         navigator.mediaSession.setActionHandler('pause', function() { togglePlay(); });
-        navigator.mediaSession.setActionHandler('nexttrack', function() { playNextSimilarSong(); });
+        navigator.mediaSession.setActionHandler('nexttrack', function() { playNextTrack(true); });
     }
 }
 
@@ -408,14 +440,18 @@ function createListHTML(track, context = null) {
     const trackData = encodeURIComponent(JSON.stringify({videoId: track.videoId, title: track.title, artist: artist, img: img}));
     const ctxString = context ? encodeURIComponent(JSON.stringify(context)) : 'null';
     
+    // Fitur Checkbox untuk Hapus Banyak
     return `
-        <div class="v-item" onclick="playMusic('${track.videoId}', '${trackData}', ${ctxString !== 'null' ? `JSON.parse(decodeURIComponent('${ctxString}'))` : 'null'})">
-            <img src="${img}" class="v-img" onerror="this.src='https://placehold.co/48x48/282828/FFFFFF?text=Music'">
-            <div class="v-info">
+        <div class="v-item" id="item-${track.videoId}">
+            <input type="checkbox" class="v-checkbox" onchange="handleCheckDelete('${track.videoId}', this.checked)">
+            <img src="${img}" class="v-img" onclick="playMusic('${track.videoId}', '${trackData}', ${ctxString !== 'null' ? `JSON.parse(decodeURIComponent('${ctxString}'))` : 'null'})" onerror="this.src='https://placehold.co/48x48/282828/FFFFFF?text=Music'">
+            <div class="v-info" onclick="playMusic('${track.videoId}', '${trackData}', ${ctxString !== 'null' ? `JSON.parse(decodeURIComponent('${ctxString}'))` : 'null'})">
                 <div class="v-title">${track.title}</div>
                 <div class="v-sub">${artist}</div>
             </div>
-            ${dotsSvg}
+            <div onclick="playMusic('${track.videoId}', '${trackData}', ${ctxString !== 'null' ? `JSON.parse(decodeURIComponent('${ctxString}'))` : 'null'}); setTimeout(openPlayerMenuModal, 500)">
+                ${dotsSvg}
+            </div>
         </div>
     `;
 }
@@ -589,22 +625,39 @@ function renderLibraryUI() {
                     </div>
                 `;
 
-                const txP = db.transaction("playlists", "readonly");
-                const reqP = txP.objectStore("playlists").getAll();
-                reqP.onsuccess = function() {
-                    const playlists = reqP.result;
-                    playlists.forEach(p => {
-                        html += `
-                            <div class="lib-item" onclick="openPlaylistView('${p.id}')">
-                                <img src="${p.img || 'https://via.placeholder.com/120?text=+'}" class="lib-item-img" onerror="this.src='https://via.placeholder.com/120?text=+'">
-                                <div class="lib-item-info">
-                                    <div class="lib-item-title">${p.name}</div>
-                                    <div class="lib-item-sub">Playlist • Kamu</div>
-                                </div>
+                const txO = db.transaction("offline_songs", "readonly");
+                const reqO = txO.objectStore("offline_songs").getAll();
+                reqO.onsuccess = function() {
+                    const offCount = reqO.result.length;
+                    html += `
+                        <div class="lib-item" onclick="openPlaylistView('offline')">
+                            <div class="lib-item-img off">
+                                <svg viewBox="0 0 24 24" style="fill:white; width:28px; height:28px;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>
                             </div>
-                        `;
-                    });
-                    container.innerHTML = html;
+                            <div class="lib-item-info">
+                                <div class="lib-item-title">Unduhan (Offline)</div>
+                                <div class="lib-item-sub">Memori Perangkat • ${offCount} lagu</div>
+                            </div>
+                        </div>
+                    `;
+
+                    const txP = db.transaction("playlists", "readonly");
+                    const reqP = txP.objectStore("playlists").getAll();
+                    reqP.onsuccess = function() {
+                        const playlists = reqP.result;
+                        playlists.forEach(p => {
+                            html += `
+                                <div class="lib-item" onclick="openPlaylistView('${p.id}')">
+                                    <img src="${p.img || 'https://via.placeholder.com/120?text=+'}" class="lib-item-img" onerror="this.src='https://via.placeholder.com/120?text=+'">
+                                    <div class="lib-item-info">
+                                        <div class="lib-item-title">${p.name}</div>
+                                        <div class="lib-item-sub">Playlist • Kamu</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    };
                 };
             };
         };
@@ -612,34 +665,50 @@ function renderLibraryUI() {
 }
 
 let currentPlaylistTracks = [];
+let activePlaylistId = null;
 
-// Data URI khusus biar gambar dalem playlist sama persis kaya icon di luar
-const svgLiked = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23450af5;stop-opacity:1" /><stop offset="100%" style="stop-color:%23c4efd9;stop-opacity:1" /></linearGradient></defs><rect width="240" height="240" fill="url(%23grad1)" /><path d="M120 173.5l-21.75-19.8C62.4 121.9 45 106.5 45 87.5 45 72.1 57.1 60 72.5 60c8.7 0 17.05 4.05 22.5 10.45C100.45 64.05 108.8 60 117.5 60 132.9 60 145 72.1 145 87.5c0 19-17.4 34.4-53.25 66.2L120 173.5z" fill="white" transform="scale(1.5) translate(-40, -30)"/></svg>`;
-const svgFav = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><defs><linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23e1118c;stop-opacity:1" /><stop offset="100%" style="stop-color:%23f5a623;stop-opacity:1" /></linearGradient></defs><rect width="240" height="240" fill="url(%23grad2)" /><path d="M120 186.35l-46.35 28.1 12.3-52.75L45.9 122.6l53.9-4.55L120 69l20.2 49.05 53.9 4.55-40.05 39.1 12.3 52.75L120 186.35z" fill="white" transform="scale(1.3) translate(-25, -30)"/></svg>`;
-const svgHist = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><defs><linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%231e3264;stop-opacity:1" /><stop offset="100%" style="stop-color:%23477d95;stop-opacity:1" /></linearGradient></defs><rect width="240" height="240" fill="url(%23grad3)" /><path d="M119.5 45a67.5 67.5 0 0 0-67.5 67.5H37l29.17 29.17.53 1.05 34.3-30.22H79c0-29.02 23.48-52.5 52.5-52.5s52.5 23.48 52.5 52.5-23.48 52.5-52.5 52.5c-14.47 0-27.6-5.92-37.05-15.45l-10.65 10.65C96.02 174.92 112.57 182.5 131.5 182.5c37.27 0 67.5-30.23 67.5-67.5S156.77 45 119.5 45zm-7.5 37.5v37.5l32.1 19.05 5.4-9.07-26.25-15.6V82.5H112z" fill="white" transform="scale(1.3) translate(-25, -25)"/></svg>`;
+// Mengatur Cover SVG Presisi Tengah (Bukan Data URI)
+const pathHeart = "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
+const pathStar = "M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z";
+const pathClock = "M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z";
+const pathDownload = "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z";
+
+function setPlaylistCover(gradient, svgPath) {
+    const box = document.getElementById('playlistImageContainer');
+    const img = document.getElementById('playlistImageDisplay');
+    const svg = document.getElementById('playlistSvgDisplay');
+    
+    box.style.background = gradient;
+    img.style.display = 'none';
+    svg.style.display = 'block';
+    svg.innerHTML = `<path d="${svgPath}"></path>`;
+}
 
 function openPlaylistView(id) {
+    activePlaylistId = id;
+    isEditMode = false;
+    document.getElementById('bulkActionBar').style.display = 'none';
     switchView('playlist');
     const container = document.getElementById('playlistTracksContainer');
     container.innerHTML = '<div style="color:var(--text-sub); text-align:center;">Memuat daftar lagu...</div>';
 
     if (id === 'liked') {
         document.getElementById('playlistNameDisplay').innerText = "Suka";
-        document.getElementById('playlistImageDisplay').src = svgLiked;
+        setPlaylistCover('linear-gradient(135deg, #450af5, #c4efd9)', pathHeart);
         const tx = db.transaction("liked_songs", "readonly");
         const req = tx.objectStore("liked_songs").getAll();
         req.onsuccess = () => { processPlaylistData(req.result, 'liked'); };
     } 
     else if (id === 'favorite') {
         document.getElementById('playlistNameDisplay').innerText = "Favorit";
-        document.getElementById('playlistImageDisplay').src = svgFav;
+        setPlaylistCover('linear-gradient(135deg, #e1118c, #f5a623)', pathStar);
         const tx = db.transaction("favorite_songs", "readonly");
         const req = tx.objectStore("favorite_songs").getAll();
         req.onsuccess = () => { processPlaylistData(req.result, 'favorite'); };
     }
     else if (id === 'history') {
         document.getElementById('playlistNameDisplay').innerText = "Histori Putar";
-        document.getElementById('playlistImageDisplay').src = svgHist;
+        setPlaylistCover('linear-gradient(135deg, #1e3264, #477d95)', pathClock);
         const tx = db.transaction("history_songs", "readonly");
         const req = tx.objectStore("history_songs").getAll();
         req.onsuccess = () => { 
@@ -647,12 +716,23 @@ function openPlaylistView(id) {
             processPlaylistData(histData, 'history'); 
         };
     }
+    else if (id === 'offline') {
+        document.getElementById('playlistNameDisplay').innerText = "Lagu Unduhan (Offline)";
+        setPlaylistCover('linear-gradient(135deg, #2a2a2a, #535353)', pathDownload);
+        const tx = db.transaction("offline_songs", "readonly");
+        const req = tx.objectStore("offline_songs").getAll();
+        req.onsuccess = () => { processPlaylistData(req.result, 'offline'); };
+    }
     else {
         const tx = db.transaction("playlists", "readonly");
         const req = tx.objectStore("playlists").get(id);
         req.onsuccess = () => {
             const p = req.result;
             document.getElementById('playlistNameDisplay').innerText = p.name;
+            const box = document.getElementById('playlistImageContainer');
+            box.style.background = 'transparent';
+            document.getElementById('playlistSvgDisplay').style.display = 'none';
+            document.getElementById('playlistImageDisplay').style.display = 'block';
             document.getElementById('playlistImageDisplay').src = p.img || 'https://via.placeholder.com/240/282828/ffffff?text=+';
             processPlaylistData(p.tracks || [], 'playlist');
         };
@@ -678,6 +758,88 @@ function playFirstPlaylistTrack() {
         const firstTrack = currentPlaylistTracks[0];
         const trackData = encodeURIComponent(JSON.stringify(firstTrack));
         playMusic(firstTrack.videoId, trackData, { type: 'auto', data: currentPlaylistTracks });
+    }
+}
+
+// --- LOGIC HAPUS BANYAK (MULTI-DELETE) ---
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    selectedTracksForDelete.clear();
+    
+    document.querySelectorAll('#playlistTracksContainer .v-item').forEach(item => {
+        if(isEditMode) {
+            item.classList.add('editing');
+        } else {
+            item.classList.remove('editing');
+            item.querySelector('.v-checkbox').checked = false;
+        }
+    });
+
+    const bar = document.getElementById('bulkActionBar');
+    if(isEditMode) {
+        bar.style.display = 'flex';
+        updateDeleteCount();
+    } else {
+        bar.style.display = 'none';
+    }
+}
+
+function handleCheckDelete(videoId, isChecked) {
+    if(isChecked) selectedTracksForDelete.add(videoId);
+    else selectedTracksForDelete.delete(videoId);
+    updateDeleteCount();
+}
+
+function updateDeleteCount() {
+    document.getElementById('selCountText').innerText = `${selectedTracksForDelete.size} lagu dipilih`;
+}
+
+function deleteSelectedTracks() {
+    if(selectedTracksForDelete.size === 0) {
+        showToast("Pilih minimal satu lagu untuk dihapus");
+        return;
+    }
+    
+    let storeName = "";
+    if(activePlaylistId === 'liked') storeName = "liked_songs";
+    else if(activePlaylistId === 'favorite') storeName = "favorite_songs";
+    else if(activePlaylistId === 'history') storeName = "history_songs";
+    else if(activePlaylistId === 'offline') storeName = "offline_songs";
+
+    if(storeName) {
+        const tx = db.transaction(storeName, "readwrite");
+        const store = tx.objectStore(storeName);
+        selectedTracksForDelete.forEach(id => {
+            if(activePlaylistId === 'history') {
+                // Di history keyPath nya timestamp, jadi kita loop hapus yg punya videoId sama
+                const req = store.openCursor();
+                req.onsuccess = function(e) {
+                    const cursor = e.target.result;
+                    if(cursor) {
+                        if(cursor.value.videoId === id) cursor.delete();
+                        cursor.continue();
+                    }
+                }
+            } else {
+                store.delete(id);
+            }
+        });
+        tx.oncomplete = () => {
+            showToast(`${selectedTracksForDelete.size} lagu dihapus`);
+            openPlaylistView(activePlaylistId); // Reload
+        }
+    } else {
+        // Logika hapus dari Playlist buatan sendiri
+        const tx = db.transaction("playlists", "readwrite");
+        const store = tx.objectStore("playlists");
+        const req = store.get(activePlaylistId);
+        req.onsuccess = () => {
+            const p = req.result;
+            p.tracks = p.tracks.filter(t => !selectedTracksForDelete.has(t.videoId));
+            store.put(p);
+            showToast(`${selectedTracksForDelete.size} lagu dihapus dari Playlist`);
+            openPlaylistView(activePlaylistId);
+        };
     }
 }
 
