@@ -34,7 +34,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Abaikan cache untuk request API, jika offline berikan fallback kosong
+    // Abaikan cache untuk request API, jika offline berikan JSON kosong
     if (event.request.url.includes('/api/')) {
         event.respondWith(
             fetch(event.request).catch(() => {
@@ -51,4 +51,4 @@ self.addEventListener('fetch', (event) => {
             })
         );
     }
-});;
+});

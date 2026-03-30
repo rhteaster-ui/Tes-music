@@ -144,13 +144,13 @@ function playNextTrack(isManualClick = true) {
     if (currentPlayContext && currentPlayContext.data && currentPlayContext.data.length > 0) {
         if (isShuffle) {
             const randomTrack = currentPlayContext.data[Math.floor(Math.random() * currentPlayContext.data.length)];
-            const trackData = encodeURIComponent(JSON.stringify(randomTrack));
+            const trackData = encodeURIComponent(JSON.stringify(randomTrack)).replace(/'/g, "%27");
             playMusic(randomTrack.videoId, trackData, currentPlayContext);
         } else {
             let currentIndex = currentPlayContext.data.findIndex(t => t.videoId === currentTrack.videoId);
             if (currentIndex !== -1 && currentIndex + 1 < currentPlayContext.data.length) {
                 const nextTrack = currentPlayContext.data[currentIndex + 1];
-                const trackData = encodeURIComponent(JSON.stringify(nextTrack));
+                const trackData = encodeURIComponent(JSON.stringify(nextTrack)).replace(/'/g, "%27");
                 playMusic(nextTrack.videoId, trackData, currentPlayContext);
             } else {
                 playNextSimilarSong(); 
@@ -173,7 +173,7 @@ async function playNextSimilarSong() {
                 let img = nextTrack.thumbnail ? nextTrack.thumbnail : (nextTrack.img ? nextTrack.img : 'https://placehold.co/140x140/282828/FFFFFF?text=Music');
                 img = getHighResImage(img);
                 const artist = nextTrack.artist ? nextTrack.artist : 'Unknown';
-                const trackData = encodeURIComponent(JSON.stringify({videoId: nextTrack.videoId, title: nextTrack.title, artist: artist, img: img}));
+                const trackData = encodeURIComponent(JSON.stringify({videoId: nextTrack.videoId, title: nextTrack.title, artist: artist, img: img})).replace(/'/g, "%27");
                 playMusic(nextTrack.videoId, trackData, null); 
             }
         }
@@ -312,7 +312,7 @@ function toggleRepeat() {
 // --- DOWNLOAD OFFLINE LOGIC ---
 function downloadCurrentTrack() {
     if(!currentTrack) return;
-    showToast("Mengunduh lagu untuk diputar offline...");
+    showToast("Menyiapkan metadata lagu untuk offline...");
     const tx = db.transaction("offline_songs", "readwrite");
     tx.objectStore("offline_songs").put(currentTrack);
     setTimeout(() => { showToast("Selesai! Tersedia di Unduhan"); renderLibraryUI(); }, 2000);
@@ -321,7 +321,7 @@ function downloadCurrentTrack() {
 
 function downloadCurrentPlaylist() {
     if(!currentPlaylistTracks || currentPlaylistTracks.length === 0) return;
-    showToast(`Mengunduh ${currentPlaylistTracks.length} lagu...`);
+    showToast(`Menyiapkan ${currentPlaylistTracks.length} lagu untuk offline...`);
     const tx = db.transaction("offline_songs", "readwrite");
     const store = tx.objectStore("offline_songs");
     currentPlaylistTracks.forEach(t => store.put(t));
@@ -471,8 +471,8 @@ function createListHTML(track, context = null) {
     let img = track.thumbnail ? track.thumbnail : (track.img ? track.img : 'https://placehold.co/48x48/282828/FFFFFF?text=Music');
     img = getHighResImage(img); 
     const artist = track.artist ? track.artist : 'Unknown';
-    const trackData = encodeURIComponent(JSON.stringify({videoId: track.videoId, title: track.title, artist: artist, img: img}));
-    const ctxString = context ? encodeURIComponent(JSON.stringify(context)) : 'null';
+    const trackData = encodeURIComponent(JSON.stringify({videoId: track.videoId, title: track.title, artist: artist, img: img})).replace(/'/g, "%27");
+    const ctxString = context ? encodeURIComponent(JSON.stringify(context)).replace(/'/g, "%27") : 'null';
     
     return `
         <div class="v-item" id="item-${track.videoId}">
@@ -493,8 +493,8 @@ function createCardHTML(track, isArtist = false) {
     let img = track.thumbnail ? track.thumbnail : (track.img ? track.img : 'https://placehold.co/140x140/282828/FFFFFF?text=Music');
     img = getHighResImage(img); 
     const artist = track.artist ? track.artist : 'Unknown';
-    const trackData = encodeURIComponent(JSON.stringify({videoId: track.videoId, title: track.title, artist: artist, img: img}));
-    const clickAction = isArtist ? `openArtistView('${track.title}')` : `playMusic('${track.videoId}', '${trackData}', null)`;
+    const trackData = encodeURIComponent(JSON.stringify({videoId: track.videoId, title: track.title, artist: artist, img: img})).replace(/'/g, "%27");
+    const clickAction = isArtist ? `openArtistView('${track.title.replace(/'/g, "\\'")}')` : `playMusic('${track.videoId}', '${trackData}', null)`;
     const imgClass = isArtist ? 'h-img artist-img' : 'h-img';
 
     return `
@@ -599,8 +599,8 @@ async function openArtistView(artistName) {
                 const firstTrack = result.data[0];
                 let img = firstTrack.thumbnail ? firstTrack.thumbnail : (firstTrack.img ? firstTrack.img : 'https://placehold.co/48x48/282828/FFFFFF?text=Music');
                 img = getHighResImage(img);
-                const trackData = encodeURIComponent(JSON.stringify({videoId: firstTrack.videoId, title: firstTrack.title, artist: firstTrack.artist || 'Unknown', img: img}));
-                const ctxString = encodeURIComponent(JSON.stringify(ctx));
+                const trackData = encodeURIComponent(JSON.stringify({videoId: firstTrack.videoId, title: firstTrack.title, artist: firstTrack.artist || 'Unknown', img: img})).replace(/'/g, "%27");
+                const ctxString = encodeURIComponent(JSON.stringify(ctx)).replace(/'/g, "%27");
                 document.querySelector('.artist-play-btn').setAttribute('onclick', `playMusic('${firstTrack.videoId}', '${trackData}', JSON.parse(decodeURIComponent('${ctxString}')))`);
             }
         }
@@ -792,8 +792,9 @@ function processPlaylistData(dataArr, typeId) {
 function playFirstPlaylistTrack() {
     if(currentPlaylistTracks && currentPlaylistTracks.length > 0) {
         const firstTrack = currentPlaylistTracks[0];
-        const trackData = encodeURIComponent(JSON.stringify(firstTrack));
-        playMusic(firstTrack.videoId, trackData, { type: 'auto', data: currentPlaylistTracks });
+        const trackData = encodeURIComponent(JSON.stringify(firstTrack)).replace(/'/g, "%27");
+        const ctxString = encodeURIComponent(JSON.stringify({ type: 'auto', data: currentPlaylistTracks })).replace(/'/g, "%27");
+        playMusic(firstTrack.videoId, trackData, JSON.parse(decodeURIComponent(ctxString)));
     }
 }
 
@@ -861,7 +862,7 @@ function deleteSelectedTracks() {
         });
         tx.oncomplete = () => {
             showToast(`${selectedTracksForDelete.size} lagu dihapus`);
-            openPlaylistView(activePlaylistId); // Reload
+            openPlaylistView(activePlaylistId); 
         }
     } else {
         const tx = db.transaction("playlists", "readwrite");

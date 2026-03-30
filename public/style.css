@@ -44,7 +44,6 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .home-header { padding: 16px 20px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; background: var(--bg-base); z-index: 50; border-bottom: 1px solid #1a1a1a; }
-/* ICON DIBUAT BULAT 50% */
 .profile-icon { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex-shrink: 0; cursor: pointer; }
 .profile-icon-search { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; cursor: pointer; }
 
@@ -68,7 +67,6 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 
 .horizontal-scroll { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 16px; padding: 0 16px; }
 .horizontal-scroll::-webkit-scrollbar { display: none; }
-/* FIX POTONGAN CARD KOSONG */
 .horizontal-scroll::after { content: ''; flex: 0 0 1px; }
 
 .h-card { width: 140px; flex-shrink: 0; scroll-snap-align: start; cursor: pointer; }
@@ -115,17 +113,17 @@ body { background-color: var(--bg-base); color: var(--text-main); overflow-x: hi
 .nav-item svg { width: 22px; height: 22px; fill: currentColor; } 
 
 /* MINI PLAYER UPGRADE (FLOATING & PROGRESS BAR) */
-.mini-player { position: fixed; bottom: 65px; left: 8px; right: 8px; background: #282828; border-radius: 8px; display: flex; flex-direction: column; z-index: 900; box-shadow: 0 4px 12px rgba(0,0,0,0.5); cursor: pointer; overflow: hidden; animation: slideUpMini 0.3s ease; }
+.mini-player { position: fixed; bottom: 65px; left: 8px; right: 8px; background: rgba(40,40,40,0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 8px; display: flex; flex-direction: column; z-index: 900; box-shadow: 0 4px 16px rgba(0,0,0,0.6); cursor: pointer; overflow: hidden; animation: slideUpMini 0.3s ease; border: 1px solid rgba(255,255,255,0.05); }
 @keyframes slideUpMini { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .mini-player-content { padding: 8px 12px; display: flex; align-items: center; gap: 12px; }
-.mini-player img { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; }
+.mini-player img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 .mini-player-info { flex: 1; overflow: hidden; }
-.mini-player-title { font-size: 13px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.mini-player-title { font-size: 14px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
 .mini-player-artist { font-size: 12px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mini-player-controls { display: flex; align-items: center; gap: 16px; }
-.mini-player-controls svg { fill: white; width: 24px; height: 24px; cursor: pointer; }
-.mini-progress-track { width: 100%; height: 2px; background: rgba(255,255,255,0.1); }
-.mini-progress-fill { height: 100%; background: var(--spotify-green); width: 0%; transition: width 0.1s linear; }
+.mini-player-controls svg { fill: white; width: 26px; height: 26px; cursor: pointer; }
+.mini-progress-track { width: 100%; height: 3px; background: rgba(255,255,255,0.1); }
+.mini-progress-fill { height: 100%; background: var(--spotify-green); width: 0%; transition: width 0.1s linear; border-radius: 0 2px 2px 0; }
 .play-pause-btn-mini { display: flex; align-items: center; justify-content: center; }
 
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000; display: none; flex-direction: column; animation: slideUp 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); background-color: #121212; overflow: hidden; }
