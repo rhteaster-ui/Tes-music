@@ -1,9 +1,7 @@
 // --- 0. NAVIGASI BACK, SPLASH SCREEN & PWA ---
 window.addEventListener('load', () => {
-    // Navigasi Back History API Default State
     history.replaceState({ view: 'home' }, '', '#home');
 
-    // Splash Screen Cuma 1 Kali
     if (!sessionStorage.getItem('splashShown')) {
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
@@ -48,7 +46,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
-// History Back System
 window.addEventListener('popstate', (e) => {
     if (e.state && e.state.view) {
         switchView(e.state.view, false);
@@ -252,12 +249,10 @@ function startProgressBar() {
             if (duration > 0) {
                 const percent = (current / duration) * 100;
                 
-                // Update Main Player
                 const progressBar = document.getElementById('progressBar');
                 progressBar.value = percent;
                 progressBar.style.background = `linear-gradient(to right, white ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
                 
-                // Update Mini Player Bar
                 document.getElementById('miniProgressBar').style.width = `${percent}%`;
 
                 document.getElementById('currentTime').innerText = formatTime(current);
@@ -378,7 +373,6 @@ function shareLagu() {
     closePlayerMenuModal();
 }
 
-// --- LIKE SYSTEM DENGAN SVG MURNI ---
 function checkIfLiked(videoId) {
     const tx = db.transaction("liked_songs", "readonly");
     const request = tx.objectStore("liked_songs").get(videoId);
@@ -440,7 +434,6 @@ function updateMediaSession() {
     }
 }
 
-// Switch View dengan PUSH STATE (Biar tombol back berfungsi)
 function switchView(viewName, pushState = true) {
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
     document.getElementById('view-' + viewName).classList.add('active');
@@ -467,6 +460,7 @@ function getHighResImage(url) {
     return url;
 }
 
+// PERBAIKAN BUG KARAKTER KUTIP (PENTING!)
 function createListHTML(track, context = null) {
     let img = track.thumbnail ? track.thumbnail : (track.img ? track.img : 'https://placehold.co/48x48/282828/FFFFFF?text=Music');
     img = getHighResImage(img); 
@@ -474,6 +468,7 @@ function createListHTML(track, context = null) {
     const trackData = encodeURIComponent(JSON.stringify({videoId: track.videoId, title: track.title, artist: artist, img: img})).replace(/'/g, "%27");
     const ctxString = context ? encodeURIComponent(JSON.stringify(context)).replace(/'/g, "%27") : 'null';
     
+    // Titik tiga sekarang punya pembungkus (dots-container) agar area sentuh lebih besar & pas di samping.
     return `
         <div class="v-item" id="item-${track.videoId}">
             <input type="checkbox" class="v-checkbox" onchange="handleCheckDelete('${track.videoId}', this.checked)">
@@ -482,7 +477,7 @@ function createListHTML(track, context = null) {
                 <div class="v-title">${track.title}</div>
                 <div class="v-sub">${artist}</div>
             </div>
-            <div onclick="playMusic('${track.videoId}', '${trackData}', ${ctxString !== 'null' ? `JSON.parse(decodeURIComponent('${ctxString}'))` : 'null'}); setTimeout(openPlayerMenuModal, 500)">
+            <div class="dots-container" onclick="playMusic('${track.videoId}', '${trackData}', ${ctxString !== 'null' ? `JSON.parse(decodeURIComponent('${ctxString}'))` : 'null'}); setTimeout(openPlayerMenuModal, 500)">
                 ${dotsSvg}
             </div>
         </div>
@@ -607,7 +602,6 @@ async function openArtistView(artistName) {
     } catch(e) {}
 }
 
-// --- LIBRARY (Koleksi Kamu) ---
 function renderLibraryUI() {
     if(!db) return;
     const container = document.getElementById('libraryContainer');
@@ -878,7 +872,6 @@ function deleteSelectedTracks() {
     }
 }
 
-// --- CREATE PLAYLIST & ADD TO PLAYLIST ---
 let base64PlaylistImage = '';
 function openCreatePlaylist() { document.getElementById('createPlaylistModal').style.display = 'block'; }
 function closeCreatePlaylist() {
