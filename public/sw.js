@@ -1,54 +1,49 @@
-const CACHE_NAME = 'soundify-cache-v2';
-const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/style.css',
-    '/script.js',
-    '/Gambar3.jpg',
-    '/Gambar4.png',
-    '/manifest.json'
-];
+// --- 0. NAVIGASI BACK, SPLASH SCREEN & PWA ---
+window.addEventListener('load', () => {
+    history.replaceState({ view: 'home' }, '', '#home');
 
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(STATIC_ASSETS);
-        })
-    );
-    self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-    self.clients.claim();
-});
-
-self.addEventListener('fetch', (event) => {
-    // Abaikan cache untuk request API, jika offline berikan JSON kosong
-    if (event.request.url.includes('/api/')) {
-        event.respondWith(
-            fetch(event.request).catch(() => {
-                return new Response(JSON.stringify({status: 'error', data: []}), {
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            })
-        );
+    if (!sessionStorage.getItem('splashShown')) {
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => { 
+                    splash.style.display = 'none'; 
+                    splash.remove(); 
+                }, 500);
+            }
+        }, 7500);
+        sessionStorage.setItem('splashShown', 'true');
     } else {
-        // Cache-First strategy untuk asset statis HTML, CSS, JS, Gambar
-        event.respondWith(
-            caches.match(event.request).then((cachedResponse) => {
-                return cachedResponse || fetch(event.request);
-            })
-        );
+        const splash = document.getElementById('splash-screen');
+        if(splash) {
+            splash.style.display = 'none';
+            splash.remove();
+        }
     }
+
+    // --- LOGIC AUTO-UPDATE PWA BARU ---
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            // Paksa browser ngecek update ke server setiap kali user buka app
+            reg.update();
+        }).catch(err => console.log('PWA error:', err));
+
+        // Deteksi kalau ada Service Worker baru yang ter-install
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                refreshing = true;
+                // Refresh paksa diam-diam biar user dapet UI terbaru!
+                window.location.reload(); 
+            }
+        });
+    }
+    
+    loadHomeData();
+    renderSearchCategories();
 });
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+// ... (SISA KODE SCRIPT.JS LU KE BAWAH TETAP SAMA, JANGAN DIHAPUS) ...
