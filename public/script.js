@@ -1,4 +1,4 @@
-// --- 0. NAVIGASI BACK, SPLASH SCREEN & PWA ---
+// --- 0. NAVIGASI BACK, SPLASH SCREEN & PWA AUTO-UPDATE ---
 window.addEventListener('load', () => {
     history.replaceState({ view: 'home' }, '', '#home');
 
@@ -23,7 +23,17 @@ window.addEventListener('load', () => {
     }
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.log('PWA error:', err));
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            reg.update();
+        }).catch(err => console.log('PWA error:', err));
+
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                refreshing = true;
+                window.location.reload(); 
+            }
+        });
     }
     
     loadHomeData();
@@ -34,18 +44,28 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault(); 
     deferredPrompt = e;
+    
     const installBtn = document.getElementById('installAppBtn');
     if(installBtn) {
         installBtn.style.display = 'flex'; 
         installBtn.addEventListener('click', async () => {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if(outcome === 'accepted') installBtn.style.display = 'none'; 
-            deferredPrompt = null;
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if(outcome === 'accepted') installBtn.style.display = 'none'; 
+                deferredPrompt = null;
+            }
         });
     }
 });
 
+// PWA Install Terdeteksi
+window.addEventListener('appinstalled', () => {
+    document.getElementById('installAppBtn').style.display = 'none';
+    deferredPrompt = null;
+});
+
+// History Back System
 window.addEventListener('popstate', (e) => {
     if (e.state && e.state.view) {
         switchView(e.state.view, false);
@@ -373,6 +393,7 @@ function shareLagu() {
     closePlayerMenuModal();
 }
 
+// --- LIKE SYSTEM ---
 function checkIfLiked(videoId) {
     const tx = db.transaction("liked_songs", "readonly");
     const request = tx.objectStore("liked_songs").get(videoId);
@@ -434,6 +455,7 @@ function updateMediaSession() {
     }
 }
 
+// Switch View dengan PUSH STATE
 function switchView(viewName, pushState = true) {
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
     document.getElementById('view-' + viewName).classList.add('active');
@@ -460,7 +482,6 @@ function getHighResImage(url) {
     return url;
 }
 
-// PERBAIKAN BUG KARAKTER KUTIP (PENTING!)
 function createListHTML(track, context = null) {
     let img = track.thumbnail ? track.thumbnail : (track.img ? track.img : 'https://placehold.co/48x48/282828/FFFFFF?text=Music');
     img = getHighResImage(img); 
@@ -468,7 +489,6 @@ function createListHTML(track, context = null) {
     const trackData = encodeURIComponent(JSON.stringify({videoId: track.videoId, title: track.title, artist: artist, img: img})).replace(/'/g, "%27");
     const ctxString = context ? encodeURIComponent(JSON.stringify(context)).replace(/'/g, "%27") : 'null';
     
-    // Titik tiga sekarang punya pembungkus (dots-container) agar area sentuh lebih besar & pas di samping.
     return `
         <div class="v-item" id="item-${track.videoId}">
             <input type="checkbox" class="v-checkbox" onchange="handleCheckDelete('${track.videoId}', this.checked)">

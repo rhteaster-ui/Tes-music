@@ -1,49 +1,48 @@
-// --- 0. NAVIGASI BACK, SPLASH SCREEN & PWA ---
-window.addEventListener('load', () => {
-    history.replaceState({ view: 'home' }, '', '#home');
+const CACHE_NAME = 'soundify-cache-v4';
+const STATIC_ASSETS = [
+    '/',
+    '/index.html',
+    '/style.css',
+    '/script.js',
+    '/manifest.json',
+    '/Gambar3.jpg',
+    '/Gambar4.png'
+];
 
-    if (!sessionStorage.getItem('splashShown')) {
-        setTimeout(() => {
-            const splash = document.getElementById('splash-screen');
-            if(splash) {
-                splash.style.opacity = '0';
-                setTimeout(() => { 
-                    splash.style.display = 'none'; 
-                    splash.remove(); 
-                }, 500);
-            }
-        }, 7500);
-        sessionStorage.setItem('splashShown', 'true');
-    } else {
-        const splash = document.getElementById('splash-screen');
-        if(splash) {
-            splash.style.display = 'none';
-            splash.remove();
-        }
-    }
-
-    // --- LOGIC AUTO-UPDATE PWA BARU ---
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(reg => {
-            // Paksa browser ngecek update ke server setiap kali user buka app
-            reg.update();
-        }).catch(err => console.log('PWA error:', err));
-
-        // Deteksi kalau ada Service Worker baru yang ter-install
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (!refreshing) {
-                refreshing = true;
-                // Refresh paksa diam-diam biar user dapet UI terbaru!
-                window.location.reload(); 
-            }
-        });
-    }
-    
-    loadHomeData();
-    renderSearchCategories();
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    );
+    self.skipWaiting();
 });
 
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-// ... (SISA KODE SCRIPT.JS LU KE BAWAH TETAP SAMA, JANGAN DIHAPUS) ...
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((keys) => {
+            return Promise.all(keys.map((key) => {
+                if (key !== CACHE_NAME) return caches.delete(key);
+            }));
+        })
+    );
+    self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+    if (event.request.method !== 'GET') return;
+    
+    // Abaikan API Youtube agar tidak bentrok
+    if (event.request.url.includes('youtube.com') || event.request.url.includes('ytimg.com')) return;
+
+    // Untuk API backend kita, kembalikan kosong jika offline
+    if (event.request.url.includes('/api/')) {
+        event.respondWith(
+            fetch(event.request).catch(() => new Response(JSON.stringify({status: 'error', data: []}), {headers: {'Content-Type': 'application/json'}}))
+        );
+        return;
+    }
+
+    // Untuk web dan aset lainnya, Network-First lalu Fallback ke Cache
+    event.respondWith(
+        fetch(event.request).catch(() => caches.match(event.request))
+    );
+});

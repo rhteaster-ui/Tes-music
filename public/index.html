@@ -4,19 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Soundify - R_hmt ofc.</title>
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212">
     
-    <link rel="icon" type="image/png" href="/Gambar4.png">
-    <link rel="shortcut icon" href="/Gambar4.png">
-    <link rel="apple-touch-icon" href="/Gambar4.png">
+    <link rel="icon" type="image/png" href="Gambar4.png">
+    <link rel="shortcut icon" href="Gambar4.png">
+    <link rel="apple-touch-icon" href="Gambar4.png">
     
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="style.css">
     <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
 
-    <!-- SPLASH SCREEN -->
     <div id="splash-screen">
         <div class="flash"></div>
         <div class="container-splash">
@@ -38,10 +37,9 @@
         </div>
     </div>
 
-    <!-- HOME VIEW -->
     <div id="view-home" class="view-section active">
         <div class="home-header">
-            <img src="/Gambar4.png" class="profile-icon" alt="Logo Web">
+            <img src="Gambar4.png" class="profile-icon" alt="Logo Web" onerror="this.style.display='none'">
             <h2 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Soundify</h2>
         </div>
         
@@ -55,10 +53,9 @@
         <div class="section-container"><h2 class="section-title">Artis Terpopuler Saat Ini</h2><div class="horizontal-scroll" id="rowArtists"></div></div>
     </div>
 
-    <!-- SEARCH VIEW -->
     <div id="view-search" class="view-section">
         <div class="search-header-container">
-            <img src="/Gambar4.png" class="profile-icon" alt="Logo">
+            <img src="Gambar4.png" class="profile-icon" alt="Logo" onerror="this.style.display='none'">
             <h1>Cari</h1>
         </div>
         <div class="search-box-wrapper">
@@ -72,11 +69,10 @@
         <div id="searchResultsUI" style="display: none;"><div class="vertical-list" id="searchResults"></div></div>
     </div>
 
-    <!-- LIBRARY VIEW -->
     <div id="view-library" class="view-section">
         <div class="lib-header">
             <div class="lib-header-left">
-                <img src="/Gambar4.png" class="profile-icon-search" alt="Logo">
+                <img src="Gambar4.png" class="profile-icon-search" alt="Logo" onerror="this.style.display='none'">
                 <h1 class="lib-title">Koleksi Kamu</h1>
             </div>
             <div class="lib-actions">
@@ -87,7 +83,6 @@
         <div class="lib-list" id="libraryContainer"></div>
     </div>
 
-    <!-- ARTIST VIEW -->
     <div id="view-artist" class="view-section">
         <div style="padding: 40px 16px 20px; background: linear-gradient(to bottom, #4a4a4a, var(--bg-base)); display: flex; flex-direction: column; gap: 16px;">
             <button class="back-btn" onclick="switchView('home')" style="background: rgba(0,0,0,0.5); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer;">
@@ -104,7 +99,6 @@
         </div>
     </div>
 
-    <!-- PLAYLIST VIEW -->
     <div id="view-playlist" class="view-section">
         <div style="padding: 20px 16px; background: linear-gradient(to bottom, #4a4a4a, var(--bg-base));">
             <button class="back-btn" onclick="switchView('library')" style="background: rgba(0,0,0,0.5); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer;">
@@ -143,7 +137,6 @@
         </div>
     </div>
 
-    <!-- DEVELOPER INFO VIEW -->
     <div id="view-developer" class="view-section">
         <div class="dev-hero">
             <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">Pusat Informasi</h1>
@@ -152,9 +145,9 @@
 
         <div class="section-container" style="padding: 0 16px; display: flex; flex-direction: column; align-items: center; margin-top: -30px;">
             
-            <img src="/Gambar4.png" alt="Logo Web" style="width: 140px; height: 140px; border-radius: 50%; box-shadow: 0 8px 24px rgba(0,0,0,0.5); position: relative; z-index: 2; margin-bottom: 24px; background: #121212; object-fit: cover;">
+            <img src="Gambar4.png" alt="Logo Web" style="width: 140px; height: 140px; border-radius: 50%; box-shadow: 0 8px 24px rgba(0,0,0,0.5); position: relative; z-index: 2; margin-bottom: 24px; background: #121212; object-fit: cover;" onerror="this.style.display='none'">
             
-            <button id="installAppBtn" class="dev-cta-btn install-pwa-btn" style="width: 100%;">
+            <button id="installAppBtn" class="dev-cta-btn install-pwa-btn" style="width: 100%; display: none;">
                 <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:black;"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>
                 Install Aplikasi
             </button>
@@ -185,7 +178,7 @@
             </div>
 
             <div style="text-align: center; margin-top: 40px; width: 100%;">
-                <img src="/Gambar3.jpg" class="dev-profile-pic" alt="Dev Profile" style="width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--bg-base); box-shadow: 0 8px 24px rgba(0,0,0,0.6); object-fit: cover; margin: 0 auto 16px; display: block; background: #282828;">
+                <img src="Gambar3.jpg" class="dev-profile-pic" alt="Dev Profile" style="width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--bg-base); box-shadow: 0 8px 24px rgba(0,0,0,0.6); object-fit: cover; margin: 0 auto 16px; display: block; background: #282828;" onerror="this.style.display='none'">
                 <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">R_hmt ofc.</h2>
                 <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 12px;">Lead Developer & UI/UX Designer</p>
                 <div class="dev-badge">● Sistem Online (v1.2.0)</div>
@@ -218,7 +211,6 @@
         </div>
     </div>
 
-    <!-- MINI PLAYER PREMIUM -->
     <div id="miniPlayer" class="mini-player" onclick="expandPlayer()" style="display:none;">
         <div class="mini-player-content">
             <img id="miniPlayerImg" src="https://via.placeholder.com/40" alt="Cover">
@@ -238,7 +230,6 @@
         </div>
     </div>
 
-    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchView('home')">
             <svg viewBox="0 0 24 24"><path d="M12.5 3.247a1 1 0 00-1 0L4 7.577V20h4.5v-6a1 1 0 011-1h5a1 1 0 011 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 013 0l7.5 4.33a2 2 0 011 1.732V21a1 1 0 01-1 1h-6.5a1 1 0 01-1-1v-6h-3v6a1 1 0 01-1 1H3a1 1 0 01-1-1V7.577a2 2 0 011-1.732l7.5-4.33z"></path></svg> Home
@@ -254,7 +245,6 @@
         </div>
     </nav>
 
-    <!-- FULL SCREEN PLAYER MODAL -->
     <div id="playerModal" class="modal-overlay">
         <div id="playerBg"></div>
         <div class="player-content-wrapper">
@@ -304,7 +294,6 @@
         </div>
     </div>
 
-    <!-- MODAL TITIK TIGA -->
     <div id="playerMenuModal" class="modal-overlay" style="display:none; justify-content:flex-end; background: rgba(0,0,0,0.8); z-index: 2500;">
         <div style="background: #282828; width: 100%; border-radius: 20px 20px 0 0; padding: 24px; display: flex; flex-direction: column;">
             <div style="display: flex; gap: 16px; align-items: center; border-bottom: 1px solid #3e3e3e; padding-bottom: 16px; margin-bottom: 16px;">
@@ -322,7 +311,6 @@
         </div>
     </div>
 
-    <!-- MODAL CREATE PLAYLIST -->
     <div id="createPlaylistModal" style="display:none;">
         <div class="modal-overlay" style="display:flex;">
             <div class="cp-box">
@@ -340,7 +328,6 @@
         </div>
     </div>
 
-    <!-- MODAL ADD TO PLAYLIST -->
     <div id="addToPlaylistModal" class="modal-overlay" style="display:none; justify-content:flex-end; background: rgba(0,0,0,0.8);">
         <div style="background: #282828; width: 100%; height: 60vh; border-radius: 20px 20px 0 0; padding: 20px; display: flex; flex-direction: column; z-index: 10;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -354,6 +341,6 @@
     <div id="customToast" class="toast-notification">Notifikasi</div>
     <div id="youtube-player" style="display: none;"></div>
 
-    <script src="/script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
