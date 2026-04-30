@@ -25,7 +25,7 @@ window.addEventListener('load', () => {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').then(reg => {
             reg.update();
-        }).catch(err => console.log('PWA error:', err));
+        }).catch(err => reportError('serviceWorker.register', err, { userMessage: 'Gagal mengaktifkan mode offline.' }));
 
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -61,7 +61,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 // PWA Install Terdeteksi
 window.addEventListener('appinstalled', () => {
-    document.getElementById('installAppBtn').style.display = 'none';
+    const installBtn = document.getElementById('installAppBtn');
+    if (installBtn) installBtn.style.display = 'none';
     deferredPrompt = null;
 });
 
@@ -73,6 +74,32 @@ window.addEventListener('popstate', (e) => {
         switchView('home', false);
     }
 });
+
+
+function reportError(context, error, options = {}) {
+    const payload = {
+        context,
+        message: error && error.message ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+        severity: options.severity || 'error'
+    };
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.error('[SoundifyError]', payload);
+    }
+    if (options.userMessage) showToast(options.userMessage);
+}
+
+async function safeFetchJSON(url, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        const data = await response.json();
+        return { ok: response.ok, data };
+    } finally {
+        clearTimeout(timer);
+    }
+}
 
 // --- 1. INDEXEDDB SETUP (V2) ---
 let db;
@@ -110,7 +137,7 @@ function onYouTubeIframeAPIReady() {
     });
 }
 
-function onPlayerReady(event) { console.log("Player Ready"); }
+function onPlayerReady(event) { return event; }
 
 function onPlayerStateChange(event) {
     const mainPlayBtn = document.getElementById('mainPlayBtn');
@@ -194,7 +221,9 @@ async function playNextSimilarSong() {
                 playMusic(nextTrack.videoId, trackData, null); 
             }
         }
-    } catch (error) {}
+    } catch (error) {
+        reportError('playNextSimilarSong', error, { userMessage: 'Gagal memutar lagu berikutnya.' });
+    }
 }
 
 function addToHistory(track) {
@@ -386,7 +415,7 @@ function shareLagu() {
             title: currentTrack.title,
             text: `Dengarkan ${currentTrack.title} oleh ${currentTrack.artist} di Soundify!`,
             url: window.location.href
-        }).catch(err => console.log('Share gagal', err));
+        }).catch(err => reportError('shareLagu', err, { userMessage: 'Gagal membagikan lagu.' }));
     } else {
         showToast("Fitur bagi tidak didukung di browser ini");
     }
@@ -525,8 +554,7 @@ function createCardHTML(track, isArtist = false) {
 let homeDisplayedVideoIds = new Set();
 async function fetchAndRender(query, containerId, formatType, isArtist = false, isHome = false) {
     try {
-        const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
-        const result = await response.json();
+        const { data: result } = await safeFetchJSON(`/api/search?query=${encodeURIComponent(query)}`);
         if (result.status === 'success') {
             let limit = containerId === 'recentList' ? 4 : (formatType === 'list' ? 4 : 8);
             let tracks = [];
@@ -584,8 +612,7 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
     searchTimeout = setTimeout(async () => {
         document.getElementById('searchResults').innerHTML = '<div style="color:var(--text-sub); text-align:center;">Mencari musik...</div>';
         try {
-            const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
-            const result = await response.json();
+            const { data: result } = await safeFetchJSON(`/api/search?query=${encodeURIComponent(query)}`);
             if (result.status === 'success') {
                 let html = '';
                 result.data.forEach(t => html += createListHTML(t));
@@ -602,8 +629,7 @@ async function openArtistView(artistName) {
     document.getElementById('artistTracksContainer').innerHTML = '<div style="color:var(--text-sub); text-align:center;">Memuat lagu artis...</div>';
     switchView('artist');
     try {
-        const response = await fetch(`/api/search?query=${encodeURIComponent(artistName + " official audio")}`);
-        const result = await response.json();
+        const { data: result } = await safeFetchJSON(`/api/search?query=${encodeURIComponent(artistName + " official audio")}`);
         if (result.status === 'success') {
             let html = '';
             let ctx = { type: 'artist', data: result.data };
@@ -619,7 +645,9 @@ async function openArtistView(artistName) {
                 document.querySelector('.artist-play-btn').setAttribute('onclick', `playMusic('${firstTrack.videoId}', '${trackData}', JSON.parse(decodeURIComponent('${ctxString}')))`);
             }
         }
-    } catch(e) {}
+    } catch(e) {
+        reportError('openArtistView', e, { userMessage: 'Gagal memuat artis.' });
+    }
 }
 
 function renderLibraryUI() {
